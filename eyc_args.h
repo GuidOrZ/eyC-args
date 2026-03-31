@@ -45,18 +45,6 @@ typedef struct {
 
 /* FUNCTIONS */
 
-void _init_value (args_type arglist []) {
-    for (int i = 0; arglist[i].data_type != DATATYPE_END; i++) {
-        switch (arglist[i].data_type)
-        {
-            case DATATYPE_INT:    {int *r = (int*)arglist[i].data;      *r = 0;     break; }
-            case DATATYPE_FLOAT:  {float *r = (float*)arglist[i].data;  *r = 0.0f;  break; }
-            case DATATYPE_STRING: {char **r = (char**)arglist[i].data;  *r = NULL;  break; }
-            case DATATYPE_END:                                                                      break;
-        }
-    }
-}
-
 void _assign_value (args_type *arg, const char *str) {
     switch (arg->data_type)
     {        
@@ -67,7 +55,7 @@ void _assign_value (args_type *arg, const char *str) {
     }
 }
 
-void _assigning_flag(args_type *arg, const char *str) {
+void _assign_flag(args_type *arg, const char *str) {
     if (arg->flag && strcmp(arg->flag, str) == 0) {
         *(int *)arg->data = 1;
     }
@@ -79,15 +67,13 @@ void _assigning_flag(args_type *arg, const char *str) {
 int parse_args(int argc, char *argv[], args_type arglist []) {
     if (argv == NULL || arglist == NULL) { return -1; }
 
-    _init_value(arglist);
-
     int index = 0;
     for (int i = 1; i < argc; i++) {
         if (argv[i][0] == '-') {
             for (int j = 0; arglist[j].data_type != DATATYPE_END; j++) {
                 //FLAG
                 if (arglist[j].arg_type == ARGTYPE_FLAG) {
-                    _assigning_flag(&arglist[j], argv[i]);
+                    _assign_flag(&arglist[j], argv[i]);
                 }
                 //OPTION
                 if (arglist[j].arg_type == ARGTYPE_OPTION) {
@@ -102,7 +88,7 @@ int parse_args(int argc, char *argv[], args_type arglist []) {
             }
         }
         else {  //POSITIONAL
-            for (; arglist[index].data_type != DATATYPE_END; index ++) {
+            for (; arglist[index].data_type != DATATYPE_END; index++) {
                 if (arglist[index].arg_type == ARGTYPE_POSITIONAL) {
                     _assign_value(&arglist[index], argv[i]);
                     index++;
