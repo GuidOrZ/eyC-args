@@ -2,7 +2,7 @@
 A portable, lightweight, macro-based CLI argument parser for C programs.
 
 ## Features
-Work in progress — not yet fully functional
+Work in progress !
 ## Usage
 Just include the file `"eyc_args.h"`, the whole implementation is there.
 
@@ -10,7 +10,7 @@ Just include the file `"eyc_args.h"`, the whole implementation is there.
 ```c
 #include "eyc_args.h"
 
-int main () {
+int main (int argc, char *argv[]) {
     // Initialize to the default value in case the arg is not provided
     const char *str    = "";
     const char *option = "";
@@ -18,7 +18,7 @@ int main () {
 
     DEFINE_ARGS(
         ARGS_POSITIONAL(DATATYPE_STRING, &str),
-        ARGS_OPTION("-p", "--path", DATATYPE_STRING, &option),
+        ARGS_OPTION("-p", NULL , DATATYPE_STRING, &option),
         ARGS_FLAG("-h", "--help", &flag)
     )
     // Flags can assign two int values: 
@@ -31,9 +31,9 @@ int main () {
     return 0;
 }
 ```
-## Behavior
+## Behavior (For Now)
 
-If parsing fails, the targeted variable will not be modified.
+Invalid conversions are not validated. Bad input may result in undefined behavior or truncation
 
 ```c
 // If you declare those args
@@ -47,9 +47,13 @@ DEFINE_ARGS(
 
 printf("Arg1: %s\nArg2: %d\n",pos1, pos2);
 ```
-and you run: `./program arg1 arg2`. 
 
-Only the argument that expected a string will be updated.
+and you run: `./program arg1 arg2`.
+
+Both arguments will be updated. If `arg2` is not a valid integer, `pos2` will be set to 0 (or a partial conversion).
+For example:
+- input: `123ab`
+- output: `123`
 
 So the output will be:
 ```
