@@ -1,9 +1,9 @@
+#ifndef PARSE_H
+#define PARSE_H
+
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
-
-#ifndef PARSE_H
-#define PARSE_H
 
 /* MACROS FOR THE ARGLIST DEFINITION */
 
@@ -24,6 +24,12 @@
 /* DATA STRUCTURES */
 
 typedef enum {
+    FLAG_NONE,
+    FLAG_SHORT,
+    FLAG_LONG
+} flag_values;
+
+typedef enum {
     DATATYPE_INT,
     DATATYPE_UINT,
     DATATYPE_LONG,
@@ -32,13 +38,13 @@ typedef enum {
     DATATYPE_DOUBLE,
     DATATYPE_STRING,
     DATATYPE_END
-}data_types;
+} data_types;
 
 typedef enum {
     ARGTYPE_POSITIONAL,
     ARGTYPE_FLAG,
     ARGTYPE_OPTION
-}arg_types;
+} arg_types;
 
 typedef struct {
     const char *flag;           //SHORT FLAG                            "-v"
@@ -46,11 +52,11 @@ typedef struct {
     void* data;                 //VOID POINTER TO THE DATA
     arg_types arg_type;         //TYPE OF ARG
     data_types data_type;       //ACTUAL TYPE OF THE DATA
-}args_type;
+} args_type;
 
 /* FUNCTIONS */
 
-static inline void _assign_value (args_type *arg, const char *str) {
+static inline void _assign_value(args_type *arg, const char *str) {
     switch (arg->data_type)
     {
         case DATATYPE_INT:    *(int *)arg->data           = atoi(str);                              break;
@@ -66,13 +72,14 @@ static inline void _assign_value (args_type *arg, const char *str) {
 
 static inline int _assign_flag(args_type *arg, const char *str) {
     if (arg->flag && strcmp(arg->flag, str) == 0) {
-        *(int *)arg->data = 1;
+        *(int *)arg->data = FLAG_SHORT;
         return 1;
     }
-    else if (arg->verbose_flag && strcmp(arg->verbose_flag, str) == 0) {
-        *(int *)arg->data = 2;
+    if (arg->verbose_flag && strcmp(arg->verbose_flag, str) == 0) {
+        *(int *)arg->data = FLAG_LONG;
         return 1;
     }
+
     return 0;
 }
 

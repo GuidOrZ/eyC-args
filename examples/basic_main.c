@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <stdlib.h>
 
 //Include the header
 #include "../eyc_args.h"
