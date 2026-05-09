@@ -97,8 +97,28 @@ static inline int parse_args(int argc, char *argv[], args_type arglist[]) {
     int index = 0;
     for (int i = 1; i < argc; i++) {
         if (_is_flag(argv[i])) {
+                //STACKED FLAGS
+            if (argv[i][0] == '-' && argv[i][1] != '-' && strlen(argv[i]) > 2) {
+                for (int j = 1; argv[i][j] != '\0'; j++){
+                    char short_flag[3] = {
+                       '-',
+                       argv[i][j],
+                       '\0'
+                    };
+                    for (int k = 0; arglist[k].data_type != DATATYPE_END; k++) {
+                        if (arglist[k].arg_type == ARGTYPE_FLAG) {
+                            
+                            if (_assign_flag(&arglist[k], short_flag)) {
+                                break;
+                            }
+                        }
+                    }
+                }
+                continue;
+            }
+
             for (int j = 0; arglist[j].data_type != DATATYPE_END; j++) {
-                //FLAG
+                //SINGLE FLAG
                 if (arglist[j].arg_type == ARGTYPE_FLAG) {
                     if (_assign_flag(&arglist[j], argv[i])) {
                         break;
