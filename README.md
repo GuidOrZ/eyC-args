@@ -1,8 +1,20 @@
 # eyC-args
 A portable, lightweight, macro-based CLI argument parser for C programs.
 
+**WIP**
+
 ## Features
-Work in progress !
+- Single header, no dependencies beyond the C standard library
+- Positional arguments, flags (`-v` / `--verbose`), and options with values (`-n 5`)
+- Stacked short flags (`-abc`)
+- Optional type deduction with `EYC_ARGS_*_AUTO` (C11 `_Generic`;
+  define `EYC_PARSE_NO_GENERIC` to disable)
+
+## Limitations (WIP)
+- No `--` terminator, no `--opt=value`, no generated `--help`
+- No conversion error reporting
+- Unknown flags are ignored
+
 ## Usage
 Just include the file `"eyc_args.h"`, the whole implementation is there.
 
@@ -16,34 +28,34 @@ int main (int argc, char *argv[]) {
     const char *option = "";
     int flag           = 0;
 
-    DEFINE_ARGS(
-        ARGS_POSITIONAL(DATATYPE_STRING, &str),
-        ARGS_OPTION("-p", NULL , DATATYPE_STRING, &option),
-        ARGS_FLAG("-h", "--help", &flag)
-    )
-    // Flags can assign two int values: 
-    // 1 : if the short flag is used   (e.g. "-v") 
-    // 2 : if the long flag is used    (e.g. "--verbose")
+    EYC_DEFINE_ARGS(
+        EYC_ARGS_POSITIONAL(EYC_DATATYPE_STRING, &str),
+        EYC_ARGS_OPTION("-p", NULL , EYC_DATATYPE_STRING, &option),
+        EYC_ARGS_FLAG("-h", "--help", &flag)
+    );
+    // Flags can assign two int values:
+    // EYC_FLAG_SHORT (1): if the short flag is used   (e.g. "-v") 
+    // EYC_FLAG_LONG (2) : if the long flag is used    (e.g. "--verbose")
 
     // Parse all arguments and convert them to their target types
-    parse_args(argc, argv, arglist);
+    eyc_parse_args(argc, argv, eyc_arglist);
 
     return 0;
 }
 ```
 ## Behavior (For Now)
 
-Invalid conversions are not validated. Bad input may result in undefined behavior or truncation
+No error reporting: invalid input yields 0 or a partial conversion.
 
 ```c
 // If you declare those args
 const char *pos1 = "";
 int pos2         = 0;
 
-DEFINE_ARGS(
-    ARGS_POSITIONAL(DATATYPE_STRING, &pos1),
-    ARGS_POSITIONAL(DATATYPE_INT, &pos2)
-)
+EYC_DEFINE_ARGS(
+    EYC_ARGS_POSITIONAL(EYC_DATATYPE_STRING, &pos1),
+    EYC_ARGS_POSITIONAL(EYC_DATATYPE_INT, &pos2)
+);
 
 printf("Arg1: %s\nArg2: %d\n",pos1, pos2);
 ```
